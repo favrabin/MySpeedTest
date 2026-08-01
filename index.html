@@ -1,19 +1,228 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-    <link rel="shortcut icon" href="favicon.ico">
-    <link rel="manifest" href="manifest.webmanifest">
-    <link rel="apple-touch-icon" href="images/icon-192.png">
-    <meta name="theme-color" content="#000000">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, user-scalable=no" />
-    <meta charset="UTF-8" />
-    <script type="text/javascript" src="design-switch.js"></script>
-    <title>LibreSpeed</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, user-scalable=no" />
+<title>MySpeedTest - Internet Speed Test</title>
+<link rel="shortcut icon" href="favicon.ico">
+<script type="text/javascript" src="speedtest.js"></script>
+<script type="text/javascript">
+function init() {
+	s = new Speedtest();
+	s.setParameter("telemetry_level", "basic");
+	
+	s.onupdate = function (data) {
+		I("ip").textContent = data.clientIp;
+		I("dlText").textContent = (data.dlStatus == 0) ? "..." : data.dlStatus;
+		I("ulText").textContent = (data.ulStatus == 0) ? "..." : data.ulStatus;
+		I("pingText").textContent = data.pingStatus;
+		I("jitText").textContent = data.jitterStatus;
+	};
+	
+	s.onend = function (aborted) {
+		if (aborted) {
+			// aborted
+		} else {
+			// finished
+		}
+	};
+}
+
+function startStop() {
+	if (s.getState() == 3) {
+		s.abort();
+	} else {
+		s.start();
+	}
+}
+
+function I(id) { return document.getElementById(id); }
+
+window.onload = init;
+</script>
+<style type="text/css">
+	html, body {
+		margin: 0;
+		padding: 0;
+		border: none;
+		background: #1a1a1a;
+		color: #f0f0f0;
+		font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+	}
+	
+	#test {
+		margin-top: 2em;
+		margin-bottom: 2em;
+		text-align: center;
+	}
+	
+	div.testArea {
+		display: inline-block;
+		width: 16em;
+		height: 12.5em;
+		position: relative;
+		box-sizing: border-box;
+	}
+	
+	div.testArea2 {
+		display: inline-block;
+		width: 14em;
+		height: 7em;
+		position: relative;
+		box-sizing: border-box;
+		text-align: center;
+	}
+	
+	div.testName {
+		position: absolute;
+		top: 0.1em;
+		left: 0;
+		width: 100%;
+		font-size: 1.4em;
+		z-index: 9;
+	}
+	
+	div.meterText {
+		position: absolute;
+		bottom: 1.55em;
+		left: 0;
+		width: 100%;
+		font-size: 2.5em;
+		z-index: 9;
+	}
+	
+	div.unit {
+		position: absolute;
+		bottom: 1.5em;
+		left: 0;
+		width: 100%;
+		z-index: 9;
+		font-size: 0.9em;
+	}
+	
+	div.testArea div.meterText {
+		font-size: 2.5em;
+		color: #eee;
+	}
+	
+	div.meterText:empty:before {
+		content: "0.00";
+	}
+	
+	div.meter {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		z-index: 1;
+	}
+	
+	#dlText {
+		color: #6060AA;
+	}
+	
+	#ulText {
+		color: #6060AA;
+	}
+	
+	#pingText, #jitText {
+		color: #AA6060;
+	}
+	
+	div.group {
+		margin-bottom: 1.5em;
+	}
+	
+	#startStopBtn {
+		display: inline-block;
+		margin: 0 auto;
+		color: #fff;
+		background-color: rgba(0,0,0,0.2);
+		border: 0.15em solid #4a6cf7;
+		border-radius: 0.4em;
+		padding: 0.5em 1.8em;
+		font-size: 1.4em;
+		cursor: pointer;
+		box-shadow: 0 0 12px rgba(74, 108, 247, 0.4);
+		transition: all 0.2s;
+	}
+	
+	#startStopBtn:hover {
+		background-color: rgba(74, 108, 247, 0.15);
+	}
+	
+	#startStopBtn.running {
+		background-color: rgba(255, 50, 50, 0.2);
+		border-color: #FF3030;
+		box-shadow: 0 0 12px rgba(255, 50, 50, 0.4);
+	}
+	
+	#ip {
+		margin: 0.8em 0;
+		font-size: 1.1em;
+		color: #aaa;
+	}
+	
+	a {
+		color: #7aa2ff;
+		text-decoration: none;
+	}
+	
+	a:hover {
+		text-decoration: underline;
+	}
+	
+	.footer {
+		margin-top: 40px;
+		font-size: 13px;
+		color: #888;
+	}
+</style>
 </head>
-
 <body>
-    <p>Loading...</p>
+<div id="test">
+	<div style="font-size: 2.2em; margin-bottom: 0.4em; font-weight: 600;">MySpeedTest</div>
+	
+	<div class="group">
+		<div id="startStopBtn" onclick="startStop()">Start</div>
+		<div style="margin-top: 8px; font-size: 0.9em;">
+			<a href="javascript:void(0)" onclick="alert('Privacy: This test does not store personal data permanently.')">Privacy</a>
+		</div>
+	</div>
+	
+	<div id="ip"></div>
+	
+	<div class="group">
+		<div class="testArea2">
+			<div class="testName">Ping</div>
+			<div id="pingText" class="meterText"></div>
+			<div class="unit">ms</div>
+		</div>
+		<div class="testArea2">
+			<div class="testName">Jitter</div>
+			<div id="jitText" class="meterText"></div>
+			<div class="unit">ms</div>
+		</div>
+	</div>
+	
+	<div class="group">
+		<div class="testArea">
+			<div class="testName">Download</div>
+			<div id="dlText" class="meterText"></div>
+			<div class="unit">Mbps</div>
+		</div>
+		<div class="testArea">
+			<div class="testName">Upload</div>
+			<div id="ulText" class="meterText"></div>
+			<div class="unit">Mbps</div>
+		</div>
+	</div>
+	
+	<div class="footer">
+		Built with ❤️ by <strong>favrabin</strong> · Powered by 
+		<a href="https://github.com/librespeed/speedtest" target="_blank">LibreSpeed</a> (LGPL-3.0)
+	</div>
+</div>
 </body>
-
 </html>
